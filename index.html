@@ -104,6 +104,30 @@
         box-shadow: 0 12px 24px var(--shadow);
       }
 
+      .next-btn {
+        background: var(--accent);
+        color: #3a2200;
+        border: none;
+        padding: 10px 20px;
+        font-size: clamp(16px, 2vw, 20px);
+        font-weight: 700;
+        border-radius: 12px;
+        cursor: pointer;
+        box-shadow: 0 8px 18px var(--shadow);
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+      }
+
+      .next-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 24px var(--shadow);
+      }
+
+      .next-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        box-shadow: none;
+      }
+
       main {
         background: var(--card);
         border-radius: 24px;
@@ -228,6 +252,7 @@
           <div class="badge good">答對：<span id="correctCount">0</span></div>
           <div class="badge bad">答錯：<span id="wrongCount">0</span></div>
           <button class="reset-btn" id="resetBtn">重置</button>
+          <button class="next-btn" id="nextBtn" disabled>下一題</button>
         </div>
       </header>
       <main id="mainCard">
@@ -245,6 +270,7 @@
       const correctCountEl = document.getElementById("correctCount");
       const wrongCountEl = document.getElementById("wrongCount");
       const resetBtn = document.getElementById("resetBtn");
+      const nextBtn = document.getElementById("nextBtn");
       const finishedText = document.getElementById("finishedText");
       const mainCard = document.getElementById("mainCard");
 
@@ -297,6 +323,7 @@
           answersEl.innerHTML = "";
           statusEl.textContent = "";
           finishedText.hidden = false;
+          nextBtn.disabled = true;
           return;
         }
 
@@ -326,6 +353,7 @@
         allowAnswer = true;
         statusEl.textContent = "";
         statusEl.className = "status";
+        nextBtn.disabled = true;
       }
 
       function handleAnswer(selected, btn) {
@@ -356,8 +384,7 @@
             button.style.borderColor = "var(--bad)";
           }
         });
-
-        setTimeout(pickQuestion, 1400);
+        nextBtn.disabled = false;
       }
 
       function resetGame() {
@@ -422,6 +449,9 @@
       }
 
       resetBtn.addEventListener("click", resetGame);
+      nextBtn.addEventListener("click", () => {
+        if (!nextBtn.disabled) pickQuestion();
+      });
       init();
     </script>
   </body>
