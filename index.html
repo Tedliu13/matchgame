@@ -273,6 +273,7 @@
           .split(/\r?\n/)
           .map(line => line.split(",").map(cell => cell.trim()));
         return rows
+          .slice(1)
           .filter(row => row.length >= 2)
           .map(row => ({
             thesis: row[0].replace(/^\uFEFF/, ""),
