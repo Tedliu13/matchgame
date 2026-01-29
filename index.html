@@ -352,12 +352,12 @@
           statusEl.textContent = "";
           finishedText.hidden = false;
           nextBtn.disabled = true;
-          startWrap.hidden = true;
+          startWrap.style.display = "none";
           return;
         }
 
         finishedText.hidden = true;
-        startWrap.hidden = true;
+        startWrap.style.display = "none";
         const idx = Math.floor(Math.random() * remaining.length);
         const item = remaining.splice(idx, 1)[0];
         currentAnswer = item.author;
@@ -432,7 +432,7 @@
         statusEl.textContent = "";
         statusEl.className = "status";
         finishedText.hidden = true;
-        startWrap.hidden = false;
+        startWrap.style.display = "flex";
         nextBtn.disabled = true;
       }
 
@@ -495,7 +495,7 @@
       });
       startBtn.addEventListener("click", () => {
         if (remaining.length > 0) {
-          startWrap.hidden = true;
+          startWrap.style.display = "none";
           pickQuestion();
         }
       });
