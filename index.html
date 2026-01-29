@@ -1,0 +1,427 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>猜猜這是誰的論文</title>
+    <style>
+      :root {
+        --bg-1: #0b1d2a;
+        --bg-2: #0f2a3a;
+        --accent: #ffb300;
+        --accent-2: #00e0ff;
+        --good: #3ddc84;
+        --bad: #ff5c5c;
+        --card: #0f2733;
+        --text: #f2f7fb;
+        --muted: #a7bdcc;
+        --shadow: rgba(0, 0, 0, 0.35);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(circle at 20% 20%, rgba(0, 224, 255, 0.15), transparent 45%),
+          radial-gradient(circle at 80% 10%, rgba(255, 179, 0, 0.18), transparent 40%),
+          linear-gradient(135deg, var(--bg-1), var(--bg-2));
+        min-height: 100vh;
+        display: flex;
+        align-items: stretch;
+        justify-content: center;
+        padding: 24px;
+      }
+
+      .app {
+        width: min(1100px, 100%);
+        display: grid;
+        gap: 20px;
+      }
+
+      header {
+        display: grid;
+        gap: 16px;
+        align-items: center;
+        justify-items: center;
+        text-align: center;
+      }
+
+      .title {
+        font-size: clamp(28px, 4vw, 48px);
+        font-weight: 800;
+        letter-spacing: 2px;
+        color: var(--accent);
+        text-shadow: 0 6px 12px var(--shadow);
+      }
+
+      .stats {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        align-items: center;
+        justify-content: center;
+        font-size: clamp(18px, 2.2vw, 26px);
+      }
+
+      .badge {
+        background: rgba(255, 255, 255, 0.08);
+        border: 2px solid rgba(255, 255, 255, 0.15);
+        padding: 10px 18px;
+        border-radius: 999px;
+        box-shadow: 0 8px 18px var(--shadow);
+      }
+
+      .badge.good {
+        border-color: rgba(61, 220, 132, 0.6);
+        color: var(--good);
+      }
+
+      .badge.bad {
+        border-color: rgba(255, 92, 92, 0.6);
+        color: var(--bad);
+      }
+
+      .reset-btn {
+        background: var(--accent-2);
+        color: #00222a;
+        border: none;
+        padding: 10px 20px;
+        font-size: clamp(16px, 2vw, 20px);
+        font-weight: 700;
+        border-radius: 12px;
+        cursor: pointer;
+        box-shadow: 0 8px 18px var(--shadow);
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+      }
+
+      .reset-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 24px var(--shadow);
+      }
+
+      main {
+        background: var(--card);
+        border-radius: 24px;
+        padding: clamp(20px, 4vw, 40px);
+        box-shadow: 0 18px 30px var(--shadow);
+        display: grid;
+        gap: 24px;
+      }
+
+      .question {
+        font-size: clamp(22px, 3vw, 34px);
+        font-weight: 700;
+        line-height: 1.4;
+        color: #ffffff;
+        text-shadow: 0 4px 10px var(--shadow);
+      }
+
+      .question span {
+        display: block;
+        font-size: clamp(20px, 2.4vw, 28px);
+        color: var(--muted);
+        margin-top: 6px;
+      }
+
+      .answers {
+        display: grid;
+        gap: 16px;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      }
+
+      .answer-btn {
+        padding: 18px 16px;
+        border-radius: 18px;
+        border: 2px solid transparent;
+        font-size: clamp(18px, 2.4vw, 26px);
+        font-weight: 700;
+        color: #00131a;
+        background: linear-gradient(135deg, #ffffff, #d8f6ff);
+        cursor: pointer;
+        transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+        box-shadow: 0 10px 20px var(--shadow);
+      }
+
+      .answer-btn:hover {
+        transform: translateY(-3px) scale(1.01);
+        border-color: var(--accent-2);
+      }
+
+      .answer-btn:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+      }
+
+      .status {
+        font-size: clamp(18px, 2.2vw, 24px);
+        min-height: 32px;
+        text-align: center;
+        font-weight: 700;
+      }
+
+      .status.good {
+        color: var(--good);
+      }
+
+      .status.bad {
+        color: var(--bad);
+      }
+
+      .finished {
+        font-size: clamp(20px, 2.4vw, 28px);
+        text-align: center;
+        color: var(--accent);
+        font-weight: 800;
+      }
+
+      .shake {
+        animation: shake 0.4s ease;
+      }
+
+      @keyframes shake {
+        0% { transform: translateX(0); }
+        25% { transform: translateX(-6px); }
+        50% { transform: translateX(6px); }
+        75% { transform: translateX(-4px); }
+        100% { transform: translateX(0); }
+      }
+
+      .flash {
+        animation: flash 0.6s ease;
+      }
+
+      @keyframes flash {
+        0% { box-shadow: 0 0 0 rgba(255, 92, 92, 0); }
+        30% { box-shadow: 0 0 25px rgba(255, 92, 92, 0.8); }
+        100% { box-shadow: 0 0 0 rgba(255, 92, 92, 0); }
+      }
+
+      canvas#fireworks {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        z-index: 10;
+      }
+
+      @media (max-width: 700px) {
+        body {
+          padding: 16px;
+        }
+
+        .answers {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="fireworks"></canvas>
+    <div class="app">
+      <header>
+        <div class="title">猜猜這是誰的論文</div>
+        <div class="stats">
+          <div class="badge good">答對：<span id="correctCount">0</span></div>
+          <div class="badge bad">答錯：<span id="wrongCount">0</span></div>
+          <button class="reset-btn" id="resetBtn">重置</button>
+        </div>
+      </header>
+      <main id="mainCard">
+        <div class="question" id="questionText">載入題目中…</div>
+        <div class="answers" id="answers"></div>
+        <div class="status" id="statusText"></div>
+      </main>
+      <div class="finished" id="finishedText" hidden>題目已全部完成！按「重置」再來一次吧！</div>
+    </div>
+
+    <script>
+      const questionEl = document.getElementById("questionText");
+      const answersEl = document.getElementById("answers");
+      const statusEl = document.getElementById("statusText");
+      const correctCountEl = document.getElementById("correctCount");
+      const wrongCountEl = document.getElementById("wrongCount");
+      const resetBtn = document.getElementById("resetBtn");
+      const finishedText = document.getElementById("finishedText");
+      const mainCard = document.getElementById("mainCard");
+
+      let allItems = [];
+      let remaining = [];
+      let correctCount = 0;
+      let wrongCount = 0;
+      let currentAnswer = null;
+      let allowAnswer = true;
+
+      const fireworksCanvas = document.getElementById("fireworks");
+      const fwCtx = fireworksCanvas.getContext("2d");
+      let fireworks = [];
+      let fwAnimation = null;
+
+      function resizeCanvas() {
+        fireworksCanvas.width = window.innerWidth;
+        fireworksCanvas.height = window.innerHeight;
+      }
+      window.addEventListener("resize", resizeCanvas);
+      resizeCanvas();
+
+      function parseCSV(text) {
+        const rows = text
+          .trim()
+          .split(/\r?\n/)
+          .map(line => line.split(",").map(cell => cell.trim()));
+        return rows
+          .filter(row => row.length >= 2)
+          .map(row => ({
+            thesis: row[0].replace(/^\uFEFF/, ""),
+            author: row[1]
+          }))
+          .filter(item => item.thesis && item.author);
+      }
+
+      function shuffle(arr) {
+        const copy = [...arr];
+        for (let i = copy.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [copy[i], copy[j]] = [copy[j], copy[i]];
+        }
+        return copy;
+      }
+
+      function pickQuestion() {
+        if (remaining.length === 0) {
+          questionEl.textContent = "題目已全部完成！";
+          answersEl.innerHTML = "";
+          statusEl.textContent = "";
+          finishedText.hidden = false;
+          return;
+        }
+
+        finishedText.hidden = true;
+        const idx = Math.floor(Math.random() * remaining.length);
+        const item = remaining.splice(idx, 1)[0];
+        currentAnswer = item.author;
+        questionEl.innerHTML = `這篇論文的作者是誰？<span>${item.thesis}</span>`;
+
+        const otherAuthors = allItems
+          .filter(entry => entry.author !== item.author)
+          .map(entry => entry.author);
+        const candidates = shuffle([
+          item.author,
+          ...shuffle(otherAuthors).slice(0, 3)
+        ]);
+
+        answersEl.innerHTML = "";
+        candidates.forEach(name => {
+          const btn = document.createElement("button");
+          btn.className = "answer-btn";
+          btn.textContent = name;
+          btn.addEventListener("click", () => handleAnswer(name, btn));
+          answersEl.appendChild(btn);
+        });
+
+        allowAnswer = true;
+        statusEl.textContent = "";
+        statusEl.className = "status";
+      }
+
+      function handleAnswer(selected, btn) {
+        if (!allowAnswer) return;
+        allowAnswer = false;
+        const isCorrect = selected === currentAnswer;
+
+        if (isCorrect) {
+          correctCount++;
+          correctCountEl.textContent = correctCount;
+          statusEl.textContent = "答對啦！";
+          statusEl.className = "status good";
+          launchFireworks();
+        } else {
+          wrongCount++;
+          wrongCountEl.textContent = wrongCount;
+          statusEl.textContent = `答錯了！正確答案是 ${currentAnswer}`;
+          statusEl.className = "status bad";
+          mainCard.classList.add("shake", "flash");
+          setTimeout(() => mainCard.classList.remove("shake", "flash"), 600);
+        }
+
+        document.querySelectorAll(".answer-btn").forEach(button => {
+          button.disabled = true;
+          if (button.textContent === currentAnswer) {
+            button.style.borderColor = "var(--good)";
+          } else if (button === btn && !isCorrect) {
+            button.style.borderColor = "var(--bad)";
+          }
+        });
+
+        setTimeout(pickQuestion, 1400);
+      }
+
+      function resetGame() {
+        remaining = shuffle([...allItems]);
+        correctCount = 0;
+        wrongCount = 0;
+        correctCountEl.textContent = "0";
+        wrongCountEl.textContent = "0";
+        pickQuestion();
+      }
+
+      function launchFireworks() {
+        const count = 30;
+        for (let i = 0; i < count; i++) {
+          fireworks.push({
+            x: Math.random() * fireworksCanvas.width,
+            y: Math.random() * fireworksCanvas.height * 0.6 + fireworksCanvas.height * 0.1,
+            radius: Math.random() * 3 + 2,
+            color: `hsl(${Math.random() * 360}, 90%, 60%)`,
+            vx: (Math.random() - 0.5) * 4,
+            vy: (Math.random() - 0.5) * 4,
+            life: 60 + Math.random() * 20
+          });
+        }
+        if (!fwAnimation) animateFireworks();
+      }
+
+      function animateFireworks() {
+        fwAnimation = requestAnimationFrame(animateFireworks);
+        fwCtx.clearRect(0, 0, fireworksCanvas.width, fireworksCanvas.height);
+        fireworks = fireworks.filter(p => p.life > 0);
+        fireworks.forEach(p => {
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vy += 0.02;
+          p.life -= 1;
+          fwCtx.beginPath();
+          fwCtx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+          fwCtx.fillStyle = p.color;
+          fwCtx.fill();
+        });
+        if (fireworks.length === 0) {
+          cancelAnimationFrame(fwAnimation);
+          fwAnimation = null;
+          fwCtx.clearRect(0, 0, fireworksCanvas.width, fireworksCanvas.height);
+        }
+      }
+
+      async function init() {
+        try {
+          const res = await fetch("thesis.csv");
+          const text = await res.text();
+          allItems = parseCSV(text);
+          if (allItems.length < 4) {
+            questionEl.textContent = "資料不足：至少需要 4 筆作者資料。";
+            return;
+          }
+          resetGame();
+        } catch (err) {
+          questionEl.textContent = "讀取資料失敗，請確認 thesis.csv 在同一個資料夾。";
+        }
+      }
+
+      resetBtn.addEventListener("click", resetGame);
+      init();
+    </script>
+  </body>
+</html>
